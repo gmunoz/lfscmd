@@ -26,9 +26,10 @@ def ent_paths(sub_dir):
 
     return entity_paths
 
-def __parse_entity(parts):
+def __parse_entity(parts, debug=False):
     """
     Given an array of XML entity string parts, parse out the key and value.
+    >>> __parse_entity(['<!ENTITY', 'errata', '', '', '', '', '', '', '', '', '', '"&lfs-root;lfs/errata/&version;/">'], debug=False)
     """
     if len(parts) >= 3 and parts[0] == '<!ENTITY':
         pass
@@ -51,7 +52,8 @@ def __parse_entity(parts):
             # concat the % and following string as the key
             key += parts[i]
             i += 1
-        print(f"debug: key is {key} at position {i}")
+        if debug:
+            print(f"debug: key is {key} at position {i}")
         while i < len(parts) and parts[i] == '':
             i += 1
         if i >= len(parts):
@@ -65,7 +67,8 @@ def __parse_entity(parts):
         term = value.find('">')
         if not term == -1:
             value = value[:term] + '">'
-        print(f"value so far is {value} and i of {i}")
+        if debug:
+            print(f"value so far is {value} and i of {i}")
         while i < len(parts) and not value.endswith('">'):
             value += parts[i]
             term = value.find('">')
@@ -108,6 +111,11 @@ def resolve_ent(ent_path):
     return ents
 
 def merge_entity_maps(ary):
+    """
+    Takes an array of dictionaries and flattens them into a single
+    dictionary. There should be no conflicts, or if there is, it's likely an
+    error or bug.
+    """
     result = {}
     for m in ary:
         for key in m:
@@ -162,7 +170,6 @@ def eval_entity(ent_map):
         __eval_key(key, ent_map)
 
 def start():
-    print("Hello")
     chapters = chapter_paths("lfs.git")
     e_paths = ent_paths("lfs.git")
     all_ent_vars = []
@@ -176,12 +183,12 @@ def start():
         # "latest" development version if it doesn't exist. Make this a parameter.
         entities['generic-versiond'] = 'development'
 
-    import pprint
-    pprint.pprint(entities)
+    #import pprint
+    #pprint.pprint(entities)
     #ent = __parse_entity(['<!ENTITY', 'errata', '', '', '', '', '', '', '', '', '', '"&lfs-root;lfs/errata/&version;/">'])
     #print(ent)
     eval_entity(entities)
-    pprint.pprint(entities)
+    #pprint.pprint(entities)
 
 if __name__ == "__main__":
     start()
