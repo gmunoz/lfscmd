@@ -1,3 +1,4 @@
 venv
 lfs.git
 *.swp
+__pycache__
